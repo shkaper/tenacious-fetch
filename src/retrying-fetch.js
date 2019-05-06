@@ -45,7 +45,10 @@ export default function retryingFetch (retries, url, config) {
   })
 }
 
-function getRetryDelay ({retryDelay, factor, retries}, retriesLeft) {
+function getRetryDelay ({retryDelay, factor, retries, retryDelayFn}, retriesLeft) {
+  if (typeof retryDelayFn === 'function') {
+    return retryDelayFn(retries - retriesLeft)
+  }
   if (factor && typeof factor === 'number' && Number.isInteger(factor)) {
     return exponential(factor, retries - retriesLeft)
   }

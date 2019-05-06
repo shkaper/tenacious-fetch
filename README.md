@@ -54,8 +54,11 @@ const additionalTenaciousFetchConfig = {
                             // defaults to empty array
     timeout = 1000 * 15,    // Timeout in ms before throwing a timeout error for the request.
                             // Defaults to no timeout (undefined).
-    factor: .5              // If factor is given, exponential backoff will be performed for retries, otherwise
-                            // linear backoff is used  
+    factor: .5,             // If factor is given, exponential backoff will be performed for retries, otherwise
+                            // linear backoff is used
+    retryDelayFn: (attempt) => 3000 + 1000 * Math.pow(3, attempt)
+                            // If a function is given as retryDelayFn,
+                            // it will be used to determine retry delay. Current attempt number is passed as an argument.
 }
 
 const config = Object.assign({}, normalFetchConfig, additionalTenaciousFetchConfig)

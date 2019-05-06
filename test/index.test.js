@@ -58,6 +58,21 @@ test('should use incremental backoff is factor provided', async () => {
   expect(res.status).toBe(200)
 })
 
+test('should use retry delay function if provided', async () => {
+  let expectedAttempt = 1
+  const res = await tenaciousFetch(`${baseURL}/retries`, {
+    retryDelayFn: (attempt) => {
+      expect(attempt).toBe(expectedAttempt)
+      expectedAttempt++
+      return Math.pow(3, attempt)
+    },
+    fetcher: fetch,
+    retries: 3,
+    retryStatus: [500]
+  })
+  expect(res.status).toBe(200)
+})
+
 afterAll(() => {
   global.stop()
 })
