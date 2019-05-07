@@ -8,17 +8,19 @@ export default function retryingFetch (retries, url, config) {
         .then(res => {
           if (retryStatus.includes(res.status)) {
             // TODO: - Remove repetition
+            const error = new Error(`Request failed with status code ${res.status}`)
+            error.response = res
             if (retriesLeft > 0) {
               retriesLeft--
               const retryDelay = getRetryDelay(config, retriesLeft)
 
               if (config.onRetry && typeof config.onRetry === 'function') {
-                config.onRetry({retriesLeft, retryDelay, response: res})
+                config.onRetry({retriesLeft, retryDelay, error})
               }
 
               setTimeout(() => fetchAttempt(url, config, retriesLeft), retryDelay)
             } else {
-              reject(res)
+              reject(error)
             }
           } else {
             resolve(res)
@@ -31,7 +33,7 @@ export default function retryingFetch (retries, url, config) {
             const retryDelay = getRetryDelay(config, retriesLeft)
 
             if (config.onRetry && typeof config.onRetry === 'function') {
-              config.onRetry({retriesLeft, retryDelay, response: error})
+              config.onRetry({retriesLeft, retryDelay, error})
             }
 
             setTimeout(() => fetchAttempt(url, config, retriesLeft), retryDelay)
